@@ -151,10 +151,22 @@ stored in its cache entry, so any single run can be repeated in isolation.
 
 ---
 
+## Licence
+
+Everything here -- manuscript, code, figures and data -- is released under
+**CC BY-NC 4.0** (Attribution-NonCommercial). See `LICENSE`.
+
+Two things that licence does *not* do, and which matter here:
+
+* It covers copyright only. A European patent application, *Signed XOR
+  Feedback* (No. 26382252.0), has been filed on the mechanism this code
+  implements, and no patent rights are granted by the licence. If you intend to
+  practise the mechanism, for any purpose, contact the author.
+* "NonCommercial" is not defined precisely in the licence text. If your
+  intended use is anywhere near that boundary -- industry affiliation,
+  industrially funded research, a paid service -- ask rather than assume.
+
 ## Citation
 
-Preprint: *From homeostasis to computation: how the GABA switch could mature the
-core of a signed-XOR motif*. bioRxiv, 2026.
-
-A related European patent application, *Signed XOR Feedback* (No. 26382252.0),
-has been filed.
+Preprint: *From homeostasis to computation: could the GABA switch mature the
+core of a signed-XOR motif?* bioRxiv, 2026.
