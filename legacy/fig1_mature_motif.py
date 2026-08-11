@@ -1,4 +1,4 @@
-from _helpers import *
+from _schematic_helpers import *
 fig=plt.figure(figsize=(9.4,8.0))
 c=fig.add_axes([0.0,0.0,1.0,1.0]); c.set_xlim(0,11.6); c.set_ylim(0,10); c.axis("off")
 c.set_aspect('equal')            # <-- circles stay circular (no horizontal stretch)

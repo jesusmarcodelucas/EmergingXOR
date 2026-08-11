@@ -1,0 +1,12 @@
+% Compile this to preview Fig. 1 on its own:  pdflatex standalone.tex
+% The figure body is \input from fig1_mature_motif.tex, which is the same file
+% the manuscript includes, so the preview cannot drift from the paper.
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}\usepackage[utf8]{inputenc}\usepackage{mathptmx}
+\usepackage[margin=2.35cm]{geometry}\usepackage{amsmath}\usepackage{caption}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,backgrounds,fit}
+\pagestyle{empty}
+\begin{document}
+\input{fig1_mature_motif}
+\end{document}

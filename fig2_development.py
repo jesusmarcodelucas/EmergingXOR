@@ -1,4 +1,4 @@
-from _helpers import *
+from _schematic_helpers import *
 fig=plt.figure(figsize=(13.2,4.9))
 gs=fig.add_gridspec(1,3,width_ratios=[1.0,0.6,1.0],wspace=0.12)
 # A builder

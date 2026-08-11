@@ -69,11 +69,16 @@ def trace_fig(tb=18.0, tr=4.0, tg=12.0, cliff=0.21):
     a1.plot(tw, W[0], color="#1f4e79", lw=2.8, label="arm $I\\to L_i$")
     a1.plot(tw, W[1], color="#3a8ec0", lw=2.8, label="arm $P\\to L_p$")
     a1.axhline(cliff, ls="--", color="#c0392b", lw=2.0)
-    a1.text(tb + tr + tg, cliff + 0.015, "firing cliff", fontsize=10.5, color="#c0392b", ha="right", va="bottom")
+    # cliff label moved to the left margin: it used to sit in the same corner as
+    # the legend and the GOVERNOR annotation, and the three overlapped.
+    a1.text(0.4, cliff + 0.015, "firing cliff", fontsize=10.5,
+            color="#c0392b", ha="left", va="bottom")
     a1.set_ylabel("arm weight  $w$", fontsize=12.5)
     a1.set_xlabel("time (s)", fontsize=12.5); a1.set_xlim(0, tb + tr + tg)
-    a1.set_ylim(0, max(0.72, float(np.max(W)) * 1.15))
-    a1.legend(fontsize=11.5, frameon=False, loc="lower right")
+    a1.set_ylim(-0.06, max(0.72, float(np.max(W)) * 1.28))   # headroom for the
+    #                                        legend, floor for the phase captions
+    a1.legend(fontsize=11.5, frameon=False, loc="upper left",
+              bbox_to_anchor=(0.01, 0.99))
     for s in ("top", "right"): a1.spines[s].set_visible(False)
     a1.tick_params(labelsize=10.5)
 
@@ -82,8 +87,8 @@ def trace_fig(tb=18.0, tr=4.0, tg=12.0, cliff=0.21):
           ("GOVERNOR", "shunting GABA ($-$)\n$\\to$ mature XOR", tb + tr + tg / 2, "#2e6b2e")]
     for head, sub, xc, cc in ph:
         a0.text(xc, -39, head, ha="center", va="top", fontsize=10.5, weight="bold", color=cc)
-        a1.text(xc, 0.04, sub, ha="center", va="bottom", fontsize=9, color=cc)
-    fig.suptitle("How the switch builds XOR: the builder lifts the arms over the cliff; the governor then uses them",
+        a1.text(xc, -0.055, sub, ha="center", va="bottom", fontsize=9, color=cc)
+    fig.suptitle("How the switch matures XOR: the builder lifts the arms over the cliff; the governor then uses them",
                  fontsize=12.5, weight="bold")
     fig.tight_layout(rect=[0, 0, 1, 0.95])
     fig.savefig("phase_trace_en.png", dpi=160, bbox_inches="tight", facecolor="white")
@@ -94,7 +99,8 @@ def trace_fig(tb=18.0, tr=4.0, tg=12.0, cliff=0.21):
 # ----------------------------------------------------------------------------
 # (2) phase_factorial_en.png  -- 5 conditions + arm-acquisition verdicts
 # ----------------------------------------------------------------------------
-# Hardened reference values (t_build=18, seed 11; the run shown in the PDF).
+# Reference values from the run shown in the PDF (t_build=18, seed 11).
+# KEPT FOR COMPARISON ONLY -- never used as a fallback, see factorial_fig().
 # Order of vals = read-out rate for patterns [10, 01, 11, 00].
 _FAC_DEFAULT = [
     ("governor only",        [0, 0, 0, 0],       "collapse", "[0.10, 0.10]", "neither"),
@@ -108,12 +114,15 @@ _ACQ = {"both": "both grown", "neither": "neither grown", "asymmetric": "asymmet
 
 def factorial_fig():
     p = _find("phase_factorial.json")
-    if p:
-        fac = [(r["label"], r["vals"], r["cls"], r["arms"], r["acq"]) for r in json.load(open(p))]
-        print("[factorial]  using phase_factorial.json")
-    else:
-        fac = _FAC_DEFAULT
-        print("[factorial]  phase_factorial.json not found -- using hardened reference values (PDF values).")
+    if p is None:
+        print("[factorial]  phase_factorial.json NOT FOUND.")
+        print("[factorial]  Refusing to fall back on hard-coded numbers: a figure of")
+        print("[factorial]  constants is indistinguishable from a figure of results.")
+        print("[factorial]  Run:  python3 run_phase_experiments.py")
+        return
+    fac = [(r["label"], r["vals"], r["cls"], r["arms"], r["acq"])
+           for r in json.load(open(p))]
+    print("[factorial]  using phase_factorial.json")
 
     patlab = ["10", "01", "11", "00"]; barcol = ["#1f4e79", "#3a6ea5", "#a11a1a", "#bbb"]
     fig, axes = plt.subplots(1, len(fac), figsize=(14.5, 4.6), sharey=True)
@@ -122,20 +131,28 @@ def factorial_fig():
         for i, v in enumerate(vals):
             ax.text(i, v + 7, f"{v:.0f}", ha="center", fontsize=10.5, weight="bold")
         ax.set_title(lab, fontsize=12, weight="bold")
-        vt = {"collapse": "collapse", "OR": "OR", "XOR": "XOR"}[verdict]
-        ax.text(0.5, 0.93, vt, transform=ax.transAxes, ha="center", va="top", fontsize=14,
+        # Display wording follows the classification of App. A.3 and
+        # analysis/rescore_runs.py: the class is "failure to teach".  The JSON
+        # key stays "collapse" because that is what the cached runs recorded.
+        vt = {"collapse": "failure to teach", "OR": "OR", "XOR": "XOR"}[verdict]
+        ax.text(0.5, 0.93, vt, transform=ax.transAxes, ha="center", va="top", fontsize=12,
                 weight="bold", color="white",
                 bbox=dict(boxstyle="round,pad=0.28", fc=COL[verdict], ec="none"))
-        ax.text(0.5, -0.28, f"arms {arms}\narms: {_ACQ.get(acq, acq)}",
-                transform=ax.transAxes, ha="center", fontsize=9, color="#555")
+        ax.text(0.5, -0.20, f"arms {arms}\narms: {_ACQ.get(acq, acq)}",
+                transform=ax.transAxes, ha="center", va="top",
+                fontsize=9, color="#555")
         ax.set_ylim(0, 380)
         for s in ("top", "right"): ax.spines[s].set_visible(False)
-        ax.set_xlabel("input I,P", fontsize=10.5)
+        # The axis label has to clear the two-line "arms ..." annotation above,
+        # which is drawn in axes coordinates and so does not reserve any space.
+        # labelpad is in points and is measured from the tick labels.
+        ax.set_xlabel("input I,P", fontsize=10.5, labelpad=42)
     axes[0].set_ylabel("read-out rate (Hz)", fontsize=11.5)
     fig.suptitle("Each phase \u2014 and plasticity \u2014 is necessary; silencing the hub confirms which arms grew\n"
-                 "heterogeneous hub, clean reset before probing, w0 = 0.1",
+                 "heterogeneous hub, clean reset before probing, w0 = 0.1\n"
+                 "builder only: OR at immature E_Cl; the same trained arms give XOR when re-probed at mature E_Cl",
                  fontsize=12, weight="bold")
-    fig.tight_layout(rect=[0, 0.03, 1, 0.9])
+    fig.tight_layout(rect=[0, 0.10, 1, 0.9])
     fig.savefig("phase_factorial_en.png", dpi=155, bbox_inches="tight", facecolor="white")
     plt.close(fig)
     print("[factorial]  wrote phase_factorial_en.png")
@@ -145,47 +162,13 @@ def factorial_fig():
 # (3) window2d_en.png  -- developmental window (t_build x mature shunt)
 # ----------------------------------------------------------------------------
 def window_fig():
-    wpath = "data/window2d.json" if os.path.exists("data/window2d.json") else "window2d.json"
-    if not os.path.exists(wpath):
-        print("[window]  window2d.json not found (looked in data/ and .) -- run window2d.py first. Skipping.")
-        return
-    d = json.load(open(wpath))
-    TB = [8.0, 15.0, 20.0, 25.0, 32.0, 40.0]
-    WHL = [10.0, 16.0, 22.0, 28.0, 34.0]
-    seeds = [11, 23, 37]
-    lab = {"XOR": "XOR-like", "OR": "OR", "collapse": "collapse"}
-
-    def cell(tb, whl):
-        es = [d[f"{tb}|{whl}|{s}"] for s in seeds if f"{tb}|{whl}|{s}" in d]
-        outs = [e["cls"] for e in es]; dom, n = Counter(outs).most_common(1)[0]
-        sm = np.mean([0.5 * (e["R10"] + e["R01"]) for e in es])
-        cm = np.mean([e["R11"] for e in es])
-        return dom, n, len(es), sm, cm
-
-    fig, ax = plt.subplots(figsize=(8.4, 6.6))
-    for iy, tb in enumerate(TB):
-        for ix, whl in enumerate(WHL):
-            dom, n, tot, sm, cm = cell(tb, whl)
-            ax.add_patch(plt.Rectangle((ix - 0.5, iy - 0.5), 1, 1, fc=COL[dom], ec="white", lw=2.5))
-            tc = "white"
-            ax.text(ix, iy + 0.17, lab[dom], ha="center", va="center", fontsize=11, weight="bold", color=tc)
-            ax.text(ix, iy - 0.05, f"{n}/{tot}", ha="center", va="center", fontsize=9, color=tc)
-            ax.text(ix, iy - 0.28, f"{sm:.0f}/{cm:.0f}", ha="center", va="center", fontsize=8, color=tc)
-    ax.set_xticks(range(len(WHL))); ax.set_xticklabels([f"{w:.0f}" for w in WHL], fontsize=12)
-    ax.set_yticks(range(len(TB))); ax.set_yticklabels([f"{t:.0f}" for t in TB], fontsize=12)
-    ax.set_xlim(-0.5, len(WHL) - 0.5); ax.set_ylim(-0.5, len(TB) - 0.5)
-    ax.set_xlabel("mature shunt strength  (nS per synapse)", fontsize=12.5)
-    ax.set_ylabel("builder duration  $t_{\\mathrm{build}}$  (s)  \u2014 when the switch happens", fontsize=12)
-    for s in ax.spines.values(): s.set_visible(False)
-    ax.tick_params(length=0)
-    handles = [Patch(fc=COL[k], label=lab[k]) for k in ("XOR", "OR", "collapse")]
-    ax.legend(handles=handles, loc="upper center", bbox_to_anchor=(0.5, -0.11), ncol=3, frameon=False, fontsize=11)
-    fig.suptitle("A developmental window for the switch  (cell: class, votes, single/coincidence rate Hz)",
-                 fontsize=12.5, weight="bold")
-    fig.tight_layout(rect=[0, 0, 1, 0.95])
-    fig.savefig("window2d_en.png", dpi=160, bbox_inches="tight", facecolor="white")
-    plt.close(fig)
-    print("[window]  wrote window2d_en.png")
+    """Retired.  The developmental-window figure is now produced by window2d.py,
+    which re-scores the labels (gating on the firing cliff rather than on an
+    absolute read-out rate) and knows about the extended builder-duration grid.
+    Drawing it here would silently reproduce the superseded classification."""
+    print("[window]  window2d_en.png is now produced by window2d.py:")
+    print("[window]      python3 window2d.py --plot")
+    print("[window]  skipping.")
 
 
 if __name__ == "__main__":

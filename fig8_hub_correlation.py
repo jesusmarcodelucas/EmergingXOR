@@ -29,7 +29,25 @@ C_XOR, C_GROW, C_IDX, C_R11 = "#2e7d32", "#1f4e79", "#8a2be2", "#c0392b"
 
 def load():
     bal, rand = [], []
-    for fn in glob.glob("data/robust*shared*.json") + glob.glob("robust*shared*.json"):
+    # Look next to this script's repository root, not in the cwd: after the
+    # release restructuring the script lives in figures/ and its data in
+    # data/fig8/.  The last two patterns keep the pre-release flat layout
+    # working, so an old working copy still runs.
+    here = os.path.dirname(os.path.abspath(__file__))
+    root = os.path.dirname(here)
+    patterns = [os.path.join(root, "data", "fig8", "robust*.json"),
+                os.path.join(root, "data", "robust*shared*.json"),
+                "data/robust*shared*.json",
+                "robust*shared*.json"]
+    files = []
+    for pat in patterns:
+        files.extend(glob.glob(pat))
+    files = sorted(set(files))
+    if not files:
+        print("no robust*.json found; looked in:")
+        for pat in patterns:
+            print("   ", pat)
+    for fn in files:
         try:
             S = json.load(open(fn))["summary"]
         except Exception as e:

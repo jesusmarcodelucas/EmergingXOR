@@ -1,0 +1,129 @@
+% ---------------------------------------------------------------------------
+% FIGURE 1 (TikZ).  Adapted from the connectomic preprint's motif figure.
+%
+% Differences from that version, all forced by what this paper argues:
+%   * node set is the mature circuit of this paper (I,P / L_i,L_p / INH / XOR /
+%     F+,F-), not the connectomic six-node motif (I,O / EI,EO / INH / XOR);
+%   * the hub returns inhibition ONLY to the two laterals, never to the
+%     read-out, matching the simulated architecture in App. A.3;
+%   * inhibitory edges are drawn with a filled circle head and marked (÷),
+%     the near-rest shunting limit, since the text is explicit that this is an
+%     idealisation of conductance-based inhibition and not its definition;
+%   * the two operations the reviewer asked to separate are boxed and named:
+%     the hub generates mismatch, the opponent pair supplies its sign;
+%   * no Variant A/B edges: this paper commits to one wiring.
+%
+% Colours are those of figures/_style.py, so the vector figure and the
+% matplotlib ones share one palette.
+%
+% Preamble requirement:
+%   \usepackage{tikz}
+%   \usetikzlibrary{arrows.meta,positioning,calc,backgrounds,fit}
+% ---------------------------------------------------------------------------
+\definecolor{excgreen}{HTML}{2E7D32}
+\definecolor{inhred}{HTML}{A11A1A}
+\definecolor{latblue}{HTML}{1F4E79}
+\definecolor{inpgrey}{HTML}{555555}
+\definecolor{outpurple}{HTML}{5A3A8A}
+\definecolor{nodefill}{HTML}{F4F4F8}
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+  every node/.style={font=\small},
+  exc/.style={-{Stealth[length=2.4mm]}, line width=0.9pt, draw=excgreen},
+  drive/.style={-{Stealth[length=2.4mm]}, line width=0.9pt, draw=inpgrey},
+  inh/.style={-{Circle[length=2.0mm,fill=inhred]}, line width=1.0pt, draw=inhred},
+  err/.style={-{Stealth[length=2.0mm]}, line width=0.7pt, draw=black!65},
+  nin/.style={circle, draw=black!55, fill=inpgrey!85, text=white,
+              minimum size=7.5mm, inner sep=0pt, font=\small\bfseries},
+  nlat/.style={circle, draw=black!55, fill=latblue, text=white,
+               minimum size=8mm, inner sep=0pt, font=\small\bfseries},
+  nhub/.style={circle, draw=black!55, fill=inhred, text=white,
+               minimum size=8.5mm, inner sep=0pt, font=\scriptsize\bfseries},
+  nout/.style={circle, draw=black!55, fill=outpurple, text=white,
+               minimum size=8.5mm, inner sep=0pt, font=\scriptsize\bfseries},
+  nfp/.style={circle, draw=black!55, fill=excgreen, text=white,
+              minimum size=7.5mm, inner sep=0pt, font=\small\bfseries},
+  nfm/.style={circle, draw=black!55, fill=inhred, text=white,
+              minimum size=7.5mm, inner sep=0pt, font=\small\bfseries},
+  zone/.style={rounded corners=3pt, draw=black!30, dashed, line width=0.6pt},
+]
+
+% ---- nodes -------------------------------------------------------------
+\node[nin]  (I)   at (0,  2.05) {I};
+\node[nin]  (P)   at (0, -2.05) {P};
+\node[nlat] (Li)  at (2.75,  2.05) {$L_i$};
+\node[nlat] (Lp)  at (2.75, -2.05) {$L_p$};
+\node[nhub] (H)   at (2.75,  0)    {INH};
+\node[nout] (X)   at (5.55,  0)    {XOR};
+\node[nfp]  (Fp)  at (8.35,  2.05) {$F^{+}$};
+\node[nfm]  (Fm)  at (8.35, -2.05) {$F^{-}$};
+
+% ---- excitatory arms and hub recruitment -------------------------------
+\draw[exc]   (I) -- (Li);
+\draw[exc]   (P) -- (Lp);
+\draw[drive] (I) -- (H);
+\draw[drive] (P) -- (H);
+
+% ---- the hub inhibits the laterals only, never the read-out ------------
+\draw[inh] (H) -- (Li) node[midway, left=1.2mm, inhred, font=\small] {$\div$};
+\draw[inh] (H) -- (Lp) node[midway, left=1.2mm, inhred, font=\small] {$\div$};
+
+% ---- laterals pool into the read-out -----------------------------------
+\draw[exc] (Li) -- (X);
+\draw[exc] (Lp) -- (X);
+
+% ---- opponent read-out: the part that supplies the sign ----------------
+\draw[exc] (X)  -- (Fp);
+\draw[exc] (X)  -- (Fm);
+\draw[exc, bend left=16]  (Li) to (Fp);
+\draw[exc, bend right=16] (Lp) to (Fm);
+
+\node[draw=black!45, fill=nodefill, rounded corners=2pt, inner sep=3.5pt,
+      font=\small] (E) at (8.35, 0) {$e=\rho(F^{+})-\rho(F^{-})$};
+\draw[err] (Fp) -- (E);
+\draw[err] (Fm) -- (E);
+
+% ---- the two operations, named separately ------------------------------
+\begin{scope}[on background layer]
+  \node[zone, fit=(I)(P)(Li)(Lp)(H)(X), inner sep=6pt] (zA) {};
+  \node[zone, fit=(Fp)(Fm)(E), inner sep=6pt] (zB) {};
+\end{scope}
+\node[anchor=south, font=\footnotesize\bfseries, text=black!70]
+      at ($(zA.north) + (0,1.2mm)$) {coincidence suppression: \emph{mismatch}};
+\node[anchor=south, font=\footnotesize\bfseries, text=black!70]
+      at ($(zB.north) + (0,1.2mm)$) {opponent read-out: \emph{sign}};
+
+% ---- operating cases ---------------------------------------------------
+\node[anchor=west, align=left, font=\scriptsize, text=excgreen]
+      at (10.35, 1.15) {\textbf{one input on}\\ hub weakly recruited,\\
+                        lateral escapes\\ $\to$ read-out ON};
+\node[anchor=west, align=left, font=\scriptsize, text=inhred]
+      at (10.35, -1.15) {\textbf{both inputs on}\\ hub recruited\\
+                         \emph{supralinearly}\\ $\to$ read-out OFF};
+
+% ---- legend ------------------------------------------------------------
+\node[anchor=north west, align=left, font=\scriptsize] at (-0.75, -3.35)
+  {\textcolor{excgreen}{\rule[0.6mm]{4.5mm}{0.7pt}}~excitatory \quad
+   \textcolor{inpgrey}{\rule[0.6mm]{4.5mm}{0.7pt}}~excitatory drive onto hub \quad
+   \textcolor{inhred}{\rule[0.6mm]{4.5mm}{0.9pt}$\bullet$}~conductance-based
+   inhibition ($\div$: near-rest shunting limit)};
+\end{tikzpicture}
+
+\caption{\textbf{The mature signed-XOR motif and its operations.} Each input
+excites its lateral and, in parallel, the common hub, which returns
+conductance-based inhibition only to the two laterals. The figure draws the
+analytically clean near-rest limit as a shunt ($\div$). A single input leaves
+the hub weakly recruited, so its lateral largely escapes inhibition (read-out
+ON); two inputs recruit the hub \emph{supralinearly}, so that inhibition grows
+faster than the drive and suppresses both laterals (read-out OFF), a soft
+XOR-type gate that a downstream firing threshold makes categorical. The
+read-out projects to both aggregators, and each lateral to one of them
+($L_i\!\to\!F^{+}$, $L_p\!\to\!F^{-}$); the two aggregators have opposite
+neurotransmitter identity, and their difference is the local signed error
+$e=\rho(F^{+})-\rho(F^{-})$. The two boxed operations are distinct and are the
+reason the motif is more than a gate: the central inhibition generates mismatch
+selectivity, and the opponent read-out supplies its direction.}
+\label{fig:mature}
+\end{figure}
