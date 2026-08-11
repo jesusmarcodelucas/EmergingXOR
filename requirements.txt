@@ -1,0 +1,5 @@
+# pip alternative to environment.yml; use Python 3.12.
+brian2==2.10.1
+numpy==2.4.4
+matplotlib==3.10.8
+pillow

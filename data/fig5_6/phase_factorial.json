@@ -1,0 +1,62 @@
+[
+ {
+  "label": "governor only",
+  "vals": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "cls": "collapse",
+  "arms": "[0.10, 0.10]",
+  "acq": "neither grown"
+ },
+ {
+  "label": "no hub",
+  "vals": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "cls": "collapse",
+  "arms": "[0.10, 0.10]",
+  "acq": "neither grown"
+ },
+ {
+  "label": "builder only",
+  "vals": [
+   124,
+   142,
+   349,
+   0
+  ],
+  "cls": "OR",
+  "arms": "[0.92, 0.93]",
+  "acq": "both grown"
+ },
+ {
+  "label": "no plasticity ($\\eta{=}0$)",
+  "vals": [
+   0,
+   0,
+   0,
+   0
+  ],
+  "cls": "collapse",
+  "arms": "[0.10, 0.10]",
+  "acq": "neither grown"
+ },
+ {
+  "label": "FULL sequence",
+  "vals": [
+   47,
+   47,
+   9,
+   0
+  ],
+  "cls": "XOR",
+  "arms": "[0.57, 0.56]",
+  "acq": "both grown"
+ }
+]

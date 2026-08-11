@@ -1,0 +1,17 @@
+# Pinned environment for EmergingXOR.
+#
+# The versions below are the ones the published figures were produced with.
+# Brian2 2.10 is the load-bearing pin: the model uses `run_regularly` on a
+# Synapses object and a `(shared)` state variable, and both have changed
+# behaviour across Brian2 major versions.
+name: emergingxor
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - numpy=2.4
+  - matplotlib=3.10
+  - pillow
+  - pip
+  - pip:
+      - brian2==2.10.1

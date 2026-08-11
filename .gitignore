@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.bak
+*.tmp
+*:Zone.Identifier
+token.txt
+token.txt.save
+.env
+# LaTeX build products
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.synctex.gz
