@@ -169,4 +169,4 @@ Two things that licence does *not* do, and which matter here:
 ## Citation
 
 Preprint: *From homeostasis to computation: could the GABA switch mature the
-core of a signed-XOR motif?* bioRxiv, 2026.
+core of a signed-XOR motif?* https://zenodo.org/records/21895012.
